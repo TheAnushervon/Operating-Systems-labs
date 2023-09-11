@@ -1,0 +1,6 @@
+0  realpath program.cpp
+  1  cat program.cpp
+  2  nano program.cpp
+  3  g++ -o run program.cpp
+  4  ./run
+  5  history
