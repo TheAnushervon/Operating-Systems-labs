@@ -5,15 +5,15 @@ int const_tri(int *p , int n) {
     if (n == 0) return 0;
     if (n == 1 || n == 2) return 1;
 
-        int tn = 0 ; 
+        int temp = 0 ; 
     for (int i = 3; i <= n; i++) {
-        tn = *(p) + *(p+1) + *(p+2) ; 
+        temp = *(p) + *(p+1) + *(p+2) ; 
         *(p) = *(p+1);
         *(p+1) = *(p+2) ; 
-        *(p+2) = tn ; 
+        *(p+2) = temp ; 
     }
 
-    return tn;
+    return temp;
 }
 int main() {
  const int x = 1 ; 
