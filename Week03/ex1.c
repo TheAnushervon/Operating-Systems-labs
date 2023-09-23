@@ -1,5 +1,20 @@
 #include <stdio.h> 
 
+
+int const_tri(int *p , int n) {
+    if (n == 0) return 0;
+    if (n == 1 || n == 2) return 1;
+
+        int tn = 0 ; 
+    for (int i = 3; i <= n; i++) {
+        tn = *(p) + *(p+1) + *(p+2) ; 
+        *(p) = *(p+1);
+        *(p+1) = *(p+2) ; 
+        *(p+2) = tn ; 
+    }
+
+    return tn;
+}
 int main() {
  const int x = 1 ; 
  const int *q = &x ;    
@@ -12,5 +27,9 @@ int main() {
  printf("%p\n%p\n%p\n",p, p+1, p+2)  ;
 
  if (p == memsel && p+1 == memsel+1 && p+2 == memsel+2)
-  {printf("contiguos");  }
+  {printf("contiguos\n");  }
+
+int tr_n[3] = {0,1,1} ; 
+int check = const_tri(tr_n,4); 
+ 
 }
