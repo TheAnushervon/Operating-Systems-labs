@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <stdlib.h>
 int const_tri(int *p, int n)
 {
     if (n == 0)
@@ -8,15 +8,15 @@ int const_tri(int *p, int n)
         return 1;
 
     int temp = 0;
+    p[0] = 0;
+    p[1] = 1;
+    p[2] = 1;
     for (int i = 3; i <= n; i++)
     {
-        temp = *(p) + *(p + 1) + *(p + 2);
-        *(p) = *(p + 1);
-        *(p + 1) = *(p + 2);
-        *(p + 2) = temp;
+        p[i] = p[i - 3] + p[i - 2] + p[i - 1];
     }
 
-    return temp;
+    return p[n];
 }
 int main()
 {
@@ -35,6 +35,10 @@ int main()
         printf("contiguos\n");
     }
 
-    int tr_n[3] = {0, 1, 1};
-    int check = const_tri(tr_n, 4);
+    int n;
+    printf("Enter value of n:");
+    scanf("%d", &n);
+    int *const pp = (int *)malloc((n + 1) * sizeof(int));
+    int check = const_tri(pp, n);
+    printf("%d", check);
 }
