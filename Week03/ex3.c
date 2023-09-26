@@ -50,7 +50,7 @@ Directory create_directory(const char *name, Directory *parent_directory) {
     strcpy(directory.name, name);
     
     if (parent_directory != NULL) {
-        snprintf(directory.path, MY_MAX_PATH + 1, "%s/%s", parent_directory->path, name);
+       snprintf(directory.path, MY_MAX_PATH + 1, "%s%s", parent_directory->path, name);
     } else {
         strcpy(directory.path, "/");
     }
