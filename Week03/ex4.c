@@ -67,7 +67,7 @@ void *aggregate(void *base, size_t size, int n,
 
 int main()
 {
-    double values_d[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
+    double values_d[5] = {1.0, 2.0, 3.0, 4.0, 5.5};
     double initial_value_a = 0;
     double *sum_result_d = (double *)aggregate(values_d, sizeof(double), 5, &initial_value_a, add_d);
     printf("Sum of double:%lf\n", *sum_result_d);
@@ -89,6 +89,14 @@ int main()
 
     int *greater_result_i = (int *)aggregate(values_i, sizeof(int), 5, &initial_value_gri, max_i);
     printf("Max element of int type:%d\n", *greater_result_i);
+    
 
+    free(sum_result_i); 
+    free(mult_result_i); 
+    free(greater_result_i); 
+    
+    free(sum_result_d); 
+    free(mult_result_d); 
+    free(greater_result_d); 
     return 0;
 }
