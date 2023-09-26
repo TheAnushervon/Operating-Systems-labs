@@ -9,9 +9,6 @@
 struct Directory;
 struct File;
 
-typedef void (*Show_file)(struct File *file);
-typedef void (*Show_dir)(struct Directory *dir);
-typedef void (*Add_dir)(struct Directory *dir1, struct Directory *dir2);
 typedef void (*Add_file)(struct File *file, struct Directory *dir);
 typedef void (*Overwrite_to_file)(struct File *file, const char *str);
 typedef void (*Append_to_file)(struct File *file, const char *str);
@@ -37,9 +34,6 @@ typedef struct Directory {
     char path[MY_MAX_PATH];
     char name[MAX_NAME];
 
-    Show_dir show_dir;
-    Show_file show_file;
-    Add_dir add_dir;
     Add_file add_file;
 } Directory;
 
