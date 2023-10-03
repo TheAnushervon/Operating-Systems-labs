@@ -11,4 +11,5 @@ ex3 -- 2*[ex3] - 5-10 sec.
 ex3 -- 3*[ex3] - 10-15 sec. 
 ex3 -- 4*[ex3] - 15-20 sec. 
 ex3 -- 5*[ex3] - 20-25 sec. 
-So the difference is in the number of processes occuring 
+So the difference is in the number of processes occuring in the first one is 2^3 processes which is 8 processes and 
+for the 2^5 which is 32 processes occuring 
