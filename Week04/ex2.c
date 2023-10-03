@@ -7,43 +7,51 @@
 
 const int SIZE = 120;
 
-int main(void){
+int main(void)
+{
 
   int status;
   srand(time(0));
   FILE *file = fopen("temp.txt", "w");
   int u[SIZE], v[SIZE];
-  for(int i = 0; i < SIZE; i ++){
+  for (int i = 0; i < SIZE; i++)
+  {
     u[i] = rand() % 100;
     v[i] = rand() % 100;
   }
-
 
   int n;
   scanf("%d", &n);
   int processes[n];
   assert(SIZE % n == 0);
   int start = 0, part = SIZE / n;
-  for(int i = 0; i < n; i ++){
+  for (int i = 0; i < n; i++)
+  {
     pid_t pid = fork();
-    if(pid == 0){
+    if (pid == 0)
+    {
       int result = 0;
-  for (int i = start; i < start+part; i ++){
-    result += u[i] * v[i];
-  }
-  fprintf(file, "%d\n", result) ; 
+      for (int i = start; i < start + part; i++)
+      {
+        result += u[i] * v[i];
+      }
+      fprintf(file, "%d\n", result);
       exit(EXIT_SUCCESS);
-    }else{
+    }
+    else
+    {
       processes[i] = pid;
     }
     start += part;
   }
-  for(int i = 0; i < n; i ++) waitpid(processes[i], &status, 0);
+  for (int i = 0; i < n; i++)
+    waitpid(processes[i], &status, 0);
   fclose(file);
 
   long long res = 0;
   file = fopen("temp.txt", "r");
-  for(int i = 0; i < n; i ++){
+  for (int i = 0; i < n; i++)
+  {
     int x;
     fscanf(file, "%d", &x);
     res += x;
@@ -53,4 +61,3 @@ int main(void){
   fclose(file);
   return EXIT_SUCCESS;
 }
-
