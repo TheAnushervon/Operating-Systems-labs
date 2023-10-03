@@ -24,14 +24,14 @@ int main(void)
   scanf("%d", &n);
   int processes[n];
   assert(SIZE % n == 0);
-  int start = 0, part = SIZE / n;
+  int start = 0, end = SIZE / n;
   for (int i = 0; i < n; i++)
   {
     pid_t pid = fork();
     if (pid == 0)
     {
       int result = 0;
-      for (int i = start; i < start + part; i++)
+      for (int i = start; i < start + end; i++)
       {
         result += u[i] * v[i];
       }
@@ -42,7 +42,7 @@ int main(void)
     {
       processes[i] = pid;
     }
-    start += part;
+    start += end;
   }
   for (int i = 0; i < n; i++)
     waitpid(processes[i], &status, 0);
@@ -52,9 +52,9 @@ int main(void)
   file = fopen("temp.txt", "r");
   for (int i = 0; i < n; i++)
   {
-    int x;
-    fscanf(file, "%d", &x);
-    res += x;
+    int values;
+    fscanf(file, "%d", &values);
+    res += values;
   }
   printf("dot product of v and u is: %lld\n", res);
 
