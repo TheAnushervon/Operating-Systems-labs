@@ -20,21 +20,31 @@ int processes[n] ;
 int counter = 0 ; 
 int left = 0 ;
 int right = size ;
-int sum = 0 ;   
+int  result = 0  ;   
 for (int i = 0 ; i < n ; i ++ )  { 
 pid_t root = fork() ; 
 if (root == 0) { 
-    ///int sum = 0  ;
+    int sum = 0  ;
     for (int j = left; j<min(right,120); j++){
         sum+=u[j]+v[j] ; 
     }
     left+=size ; right+=size ;
     //processes[i] = sum; 
-    exit(EXIT_SUCCESS) ;  
-}else {processes[i] = sum ; sum = 0 ;}
+    exit(sum) ;   
+}else {
+    left+=size ; right+=size ; 
+    int status ; 
+    waitpid(root, &status, 0) ;
+    processes[i] = WIFEXITED(status) ; 
 }
-printf("Total sum will be : %d",processes[n-1] ); 
-}
+//printf("Total sum will be : %d",processes[n-1] ); 
+int totalSum = 0;
+    for (int i = 0; i < n; i++) {
+        totalSum += processes[i];
+    }
+
+    printf("Total sum will be : %d\n", totalSum);
+}}
 
 
 
