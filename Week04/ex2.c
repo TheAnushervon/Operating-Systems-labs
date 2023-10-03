@@ -1,55 +1,56 @@
-#include <stdio.h> 
-#include <unistd.h> 
-#include <math.h> 
+#include <stdio.h>
 #include <stdlib.h>
-#include <sys/wait.h> 
-#include <time.h> 
-#define SIZE 120
-#define min(a,b) ((a) < (b)  ? (a) : (b) )
-int main () { 
-srand(time(0)); 
-int u[SIZE],v[SIZE] ; 
-for (int i = 0 ; i < 120; i++) { 
-    u[i] = rand()%100; 
-    v[i] = rand()%100; 
-} 
-int n ; 
-scanf("%d", &n); 
-int size = ceil(120/n) ; 
-int processes[n] ;
-int counter = 0 ; 
-int left = 0 ;
-int right = size ;
-int  result = 0  ;   
-for (int i = 0 ; i < n ; i ++ )  { 
-pid_t root = fork() ; 
-if (root == 0) { 
-    int dotproduct = 0  ;
-    for (int j = left; j<min(right,120); j++){
-        dotproduct+=u[j]*v[j] ; 
+#include <unistd.h>
+#include <sys/wait.h>
+#include <assert.h>
+#include <time.h>
+
+const int SIZE = 120;
+
+int main(void){
+
+  int status;
+  srand(time(0));
+  FILE *file = fopen("temp.txt", "w");
+  int u[SIZE], v[SIZE];
+  for(int i = 0; i < SIZE; i ++){
+    u[i] = rand() % 100;
+    v[i] = rand() % 100;
+  }
+
+
+  int n;
+  scanf("%d", &n);
+  int processes[n];
+  assert(SIZE % n == 0);
+  int start = 0, part = SIZE / n;
+  for(int i = 0; i < n; i ++){
+    pid_t pid = fork();
+    if(pid == 0){
+      int result = 0;
+  for (int i = start; i < start+part; i ++){
+    result += u[i] * v[i];
+  }
+  fprintf(file, "%d\n", result) ; 
+      exit(EXIT_SUCCESS);
+    }else{
+      processes[i] = pid;
     }
-    ///left+=size ; right+=size ;
-    //processes[i] = sum; 
-    exit(dotproduct) ;   
-}else {
-    left+=size ; right+=size ; 
-    int status ; 
-   // waitpid(root, &status, 0) ;
-   // processes[i] = WIFEXITED(status) ; 
+    start += part;
+  }
+  for(int i = 0; i < n; i ++) waitpid(processes[i], &status, 0);
+  fclose(file);
+
+  long long res = 0;
+  file = fopen("temp.txt", "r");
+  for(int i = 0; i < n; i ++){
+    int x;
+    fscanf(file, "%d", &x);
+    res += x;
+  }
+  printf("dot product of v and u is: %lld\n", res);
+
+  fclose(file);
+  return EXIT_SUCCESS;
 }
-//printf("Total sum will be : %d",processes[n-1] ); 
-}int totalDotProduct = 0;
-int status ; 
-    for (int i = 0; i < n; i++) {
-        wait(&status) ; 
-        processes[i] = WIFEXITED(status) ; 
-        totalDotProduct+= processes[i];
-    }
-
-    printf("Total dot product will be : %d\n", totalDotProduct);
-}
-
-
-
-
 
