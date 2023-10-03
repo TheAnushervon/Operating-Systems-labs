@@ -1,0 +1,7 @@
+Calling n = 3 , out iteration will be 3 times
+and though 3 process will be created, if will look 
+at pstreem (specifically for easy seeing: pstreem | grep ex3)
+it will create 3 processes 
+ex3 -- ex3
+ex3 -- 2*[ex3] 
+ex3 -- 3*[ex3]

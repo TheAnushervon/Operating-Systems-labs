@@ -12,11 +12,11 @@ int main (int argc, char*argv[]) {
     for (int i = 0 ; i < n ; i++) { 
         pid_t pr = fork() ; 
         if (pr == 0 ) { 
-            printf("We exited from child\n") ; 
+            //printf("We exited from child\n") ; 
             exit(EXIT_SUCCESS) ; 
         }
         else {
-            printf("Now we are in parent and will sleep\n"); 
+            //printf("Now we are in parent and will sleep\n"); 
             sleep(5) ; }
     }
     return EXIT_SUCCESS ; 
