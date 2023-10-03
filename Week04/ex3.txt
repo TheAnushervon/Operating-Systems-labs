@@ -1,7 +1,13 @@
-Calling n = 3 , out iteration will be 3 times
-and though 3 process will be created, if will look 
-at pstreem (specifically for easy seeing: pstreem | grep ex3)
-it will create 3 processes 
-ex3 -- ex3
-ex3 -- 2*[ex3] 
-ex3 -- 3*[ex3]
+Calling n = 3, will create a new process after each 5sec 
+and though in total 3 process will be created, when we will be using 
+at pstreem (specifically for easy seeing definetly just our process: pstreem | grep ex3)
+it will create 3 processes  
+ex3 -- ex3 - 0-5 sec.
+ex3 -- 2*[ex3] - 5-10 sec.
+ex3 -- 3*[ex3] - 10-15 sec.
+also the same for the n = 5, it will create 5 processes: 
+ex3 -- ex3 - 0-5 sec.
+ex3 -- 2*[ex3] - 5-10 sec. 
+ex3 -- 3*[ex3] - 10-15 sec. 
+ex3 -- 4*[ex3] - 15-20 sec. 
+ex3 -- 5*[ex3] - 20-25 sec. 
