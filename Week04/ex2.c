@@ -10,8 +10,8 @@ int main () {
 srand(time(0)); 
 int u[SIZE],v[SIZE] ; 
 for (int i = 0 ; i < 120; i++) { 
-    u[i] = rand()%100 ; 
-    v[i] = rand()%100 ; 
+    u[i] = rand()%100; 
+    v[i] = rand()%100; 
 } 
 int n ; 
 scanf("%d", &n); 
@@ -24,27 +24,30 @@ int  result = 0  ;
 for (int i = 0 ; i < n ; i ++ )  { 
 pid_t root = fork() ; 
 if (root == 0) { 
-    int sum = 0  ;
+    int dotproduct = 0  ;
     for (int j = left; j<min(right,120); j++){
-        sum+=u[j]+v[j] ; 
+        dotproduct+=u[j]*v[j] ; 
     }
-    left+=size ; right+=size ;
+    ///left+=size ; right+=size ;
     //processes[i] = sum; 
-    exit(sum) ;   
+    exit(dotproduct) ;   
 }else {
     left+=size ; right+=size ; 
     int status ; 
-    waitpid(root, &status, 0) ;
-    processes[i] = WIFEXITED(status) ; 
+   // waitpid(root, &status, 0) ;
+   // processes[i] = WIFEXITED(status) ; 
 }
 //printf("Total sum will be : %d",processes[n-1] ); 
-int totalSum = 0;
+}int totalDotProduct = 0;
+int status ; 
     for (int i = 0; i < n; i++) {
-        totalSum += processes[i];
+        wait(&status) ; 
+        processes[i] = WIFEXITED(status) ; 
+        totalDotProduct+= processes[i];
     }
 
-    printf("Total sum will be : %d\n", totalSum);
-}}
+    printf("Total dot product will be : %d\n", totalDotProduct);
+}
 
 
 
