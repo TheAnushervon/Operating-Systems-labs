@@ -24,13 +24,13 @@ int main(){
 	scanf("%d",&n);
 
 	struct Thread threads[n];
-	for(int i = 1; i <= n; i ++){
+	for(int i = 0; i < n; i ++){
 		printf("Thread %d is created\n", i);
-		threads[i-1].i = i;
-		sprintf(threads[i-1].message, "Hello from thread %d", i);
-		pthread_create(&threads[i-1].id, NULL, print_message, &threads[i-1]);
-		pthread_join(threads[i-1].id, NULL);
-		printf("Thread %d exits\n", i);
+		threads[i].i = i+1;
+		sprintf(threads[i].message, "Hello from thread %d", i+1);
+		pthread_create(&threads[i].id, NULL, print_message, &threads[i]);
+		pthread_join(threads[i].id, NULL);
+		printf("Thread %d exits\n", i+1);
 	}
 	return 0;
 }
