@@ -1,0 +1,32 @@
+n_threads = 1:
+
+This result should be the worst one because using a single thread for the computation means 
+no parallelization is happening.
+
+n_threads = 2:
+
+This result should be better than the previous scenario. 
+With two threads, the work is divided into two intervals: [0, n/2) and [n/2, n).
+The maximum time will be taken by the interval [n/2, n)
+because it consists of larger numbers that require more time to check for primality.
+
+n_threads = 4:
+
+This result is an improvement over the previous two scenarios. With four threads, the work is divided into 
+four intervals: [0, n/4), [n/4, n/2), [n/2, 3n/4), and [3n/4, n).
+The worst time will be in the interval [3n/4, n) as it contains the largest numbers.
+
+n_threads = 10:
+
+This result is slightly better than the previous scenarios.
+With ten threads, the work is divided into ten intervals, and the worst time will be in the interval [9n/10, n).
+
+n_threads = 100:
+
+This result should be the fastest among the scenarios. With one hundred threads, 
+the work is divided into one hundred intervals, and the worst time will be in the interval [99n/100, n).
+
+n_threads = n:
+
+When n_threads is equal to n, it's essentially checking each number in the range individually without parallelization.
+The worst time will be for the last number in the range, which is n-1, as it is the largest number in the range.
