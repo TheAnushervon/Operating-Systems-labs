@@ -12,12 +12,16 @@ if(pipe(fd) == -1) {
     return 1 ; 
 }
 int id = fork() ; 
+if (id == -1) {
+    printf("An error occured with the fork") ; 
+    return 2 ; 
+}
 if(id == 0) { 
     close(fd[0]) ; 
     char message[MAX] ;
     printf("It is publisher.Write a message: ") ; 
     fgets(message, MAX,stdin) ; 
-    write(fd[1], &message, strlen(message)+1) ; 
+    if(write(fd[1], &message, strlen(message)+1) ; 
 }else {
     close(fd[1]) ; 
     char message1[MAX] ; 
