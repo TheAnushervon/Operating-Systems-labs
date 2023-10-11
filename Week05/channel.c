@@ -21,11 +21,11 @@ if(id == 0) {
     char message[MAX] ;
     printf("It is publisher.Write a message: ") ; 
     fgets(message, MAX,stdin) ; 
-    if(write(fd[1], &message, strlen(message)+1) ; 
+    if(write(fd[1], &message, strlen(message)+1) == -1) {printf("An error occured while writing"); return 3;} ; 
 }else {
     close(fd[1]) ; 
     char message1[MAX] ; 
-    read(fd[0], &message1, sizeof(message1));
+   if (read(fd[0], &message1, sizeof(message1)) == -1) {printf("An error occured while reading"); return 4;};
     close(fd[0]) ; 
     printf("It is subcriber.Here is the message: %s", message1);
 }
