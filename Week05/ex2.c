@@ -15,7 +15,7 @@ struct Thread{
 	char message[MAX];
 };
 void* print_message(void* arg){
-	printf("%s\n", ((Thread*)arg)->message);
+	printf("%s\n", ((struct Thread*)arg)->message);
 	return NULL;
 }
 int main(){

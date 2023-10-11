@@ -5,7 +5,7 @@
 // *arg - what is send to you 
 void *thread_func(void *arg) { 
     pthread_t tid = pthread_self() ; 
-    printf("Thread with the id %lu", tid) ; 
+    printf("Thread with the id %lu\n", tid) ; 
     pthread_exit(NULL); 
     
     }

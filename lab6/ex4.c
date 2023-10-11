@@ -4,7 +4,9 @@
 #include<sys/wait.h> 
 #include<unistd.h> 
 // *arg - what is send to you 
-
+// Resolving the problem of the non synchrnonizing the
+// changing of one variable by using two threads simul
+// using the pthread_mutex_t lock and unlock 
 int counter = 0 ; 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; 
 void *add (void *arg){
