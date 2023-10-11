@@ -5,18 +5,18 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
-#define LEN 30
-#define BUF_SIZE 1024
+#define SIZE 30
+#define SIZE_BUFFER 1024
 
 int main(int argc, char** argv) {
     printf("Window for subscriber %s:\n", argv[1]);
-    char path[LEN] = "/tmp/ex1/s";
+    char path[SIZE] = "/tmp/ex1/s";
     strcat(path, argv[1]);
-    mkfifo(path, 0666);
-    char msg[BUF_SIZE];
+    
+    char msg[SIZE_BUFFER];
     while (1) {
         int fd = open(path, O_RDONLY);
-        read(fd, msg, BUF_SIZE);
+        read(fd, msg, SIZE_BUFFER);
         printf("Subscriber %s: %s\n", argv[1], msg);
         close(fd);
     }
