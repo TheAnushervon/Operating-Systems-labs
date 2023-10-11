@@ -1,52 +1,51 @@
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <errno.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
-const int BUFFER_SIZE = 1024;
+#define BUF_SIZE 1024
+#define LEN 30
+#define PATH "/tmp/publisher"
 
-int main(int argc, char* argv[]){
-    int n = 3;
-    if(argc > 1){
-        n = atoi(argv[1]);
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        printf("Did not enter n\n");
+        exit(EXIT_FAILURE);
     }
-    char* pathName = "/tmp/ex1";
-    if(mkfifo(pathName, 0666) == -1){
-        if(errno != EEXIST){
-            printf("error: main(): can not create a fifo!\n");
-            exit(1);
+    int n = atoi(argv[1]);
+    int fd;
+    mkfifo(PATH, 0666);
+    while (1) {
+        printf("Write the message:\n");
+        char input[BUF_SIZE];
+        fgets(input, BUF_SIZE, stdin);
+        int ln = strlen(input);
+        if (ln && input[ln - 1] == '\n') {
+            input[ln - 1] = '\0';
         }
-    }
-    printf("Type some text to publish1:\n");
-    fflush(stdout);
-    while(1){
-        int fd = open(pathName, O_WRONLY);
-        
-        char buff[BUFFER_SIZE];
-        char nbuff[BUFFER_SIZE * n];
-
-        fgets(buff, BUFFER_SIZE, stdin);
-        
-        for(int i = 0; i < n; i ++){
-            for(int j = 0; j < BUFFER_SIZE; j ++){
-                nbuff[i * BUFFER_SIZE + j] = buff[j];
+        for (int i = 0; i < n; i++) {
+            if (fork() == 0) {
+                char input[BUF_SIZE];
+                int fd = open(PATH, O_RDONLY);
+                read(fd, input, BUF_SIZE);
+                close(fd);
+                char subs_path[LEN];
+                sprintf(subs_path, "/tmp/ex1/s%d", i + 1);
+                fd = open(subs_path, O_WRONLY);
+                write(fd, input, BUF_SIZE);
+                close(fd);
+                exit(EXIT_SUCCESS);
+            } else {
+                int fd = open(PATH, O_WRONLY);
+                write(fd, input, BUF_SIZE);
+                close(fd);
+            }
+            for (int i = 0; i < n; i++) {
+                wait(NULL);
             }
         }
-        if(write(fd, nbuff, sizeof(nbuff)) == -1){
-            printf("error: main(): can not write to opened pipe!\n");
-            exit(1);
-        }
-
-        close(fd);
-        sleep(1.5);
     }
-
-    system("rm /tmp/ex1 -f");
 }
-
-// mkfifo reference 
-// https://man7.org/linux/man-pages/man3/mkfifo.3.html
