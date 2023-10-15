@@ -14,24 +14,24 @@ void sig1_handler(int signal) {
         exit(1);
     }
 
-    if (signal == SIGINT) { 
-    
+    if (signal == SIGUSR1) { 
+        printf("\n") ; 
         while(fgets(content, sizeof(content), textFile)){
-            printf("%s ",content) ; 
+            printf("%s",content) ; 
         }
         fflush(stdout) ; 
         fclose(textFile) ; 
     }
 }
 void sig2_handler (int signal) { 
-    if (signal == SIGQUIT) { 
+    if (signal == SIGUSR2) { 
         printf("Process terminating...") ; 
         exit(0) ; 
     }
 }
 int main() {
-    signal(SIGINT, sig1_handler) ; 
-    signal(SIGQUIT, sig2_handler) ; 
+    signal(SIGUSR1, sig1_handler) ; 
+    signal(SIGUSR2, sig2_handler) ; 
     int pidFile = open("/var/run/agent.pid", O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
     if (pidFile == -1) {
@@ -51,25 +51,16 @@ int main() {
         perror("Error opening text.txt");
         exit(1);
     } else {
-        printf("we are\n") ; 
         char line[256] ; 
         while(fgets(line, sizeof(line), textFile) != NULL){
             printf("%s", line) ; 
         }
         fflush(stdout);  
-        ///printf("he\n"); 
         fclose(textFile) ; }
-
- /*   char line[256];
-    while (fgets(line, sizeof(line), textFile)) {
-        printf("%s", line);
-    }
-*/
-    ///fclose(textFile);
 
 
     while (1) {
-        sleep(360); 
+        sleep(3600); 
     }
 
     return 0;
