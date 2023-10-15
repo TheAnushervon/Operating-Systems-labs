@@ -1,0 +1,2 @@
+It is the text.txt
+Will read it all
