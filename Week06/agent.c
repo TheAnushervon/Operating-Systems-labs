@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <signal.h> 
-
+    int notstop = 1 ;  
     FILE *textFile ; 
     char content[200] ; 
 void sig1_handler(int signal) { 
@@ -29,9 +29,24 @@ void sig2_handler (int signal) {
         exit(0) ; 
     }
 }
+void sig3_handler(int signal) { 
+    if (signal == SIGSTOP) { 
+        printf("stopped\n"); 
+        notstop = 0 ; 
+    }
+}
+void sig4_handler (int signal) { 
+    if (signal == SIGCONT) { 
+        printf("continued\n") ; 
+        notstop = 1 ; 
+    }
+}
+
 int main() {
     signal(SIGUSR1, sig1_handler) ; 
     signal(SIGUSR2, sig2_handler) ; 
+    signal(SIGSTOP, sig3_handler) ; 
+    signal(SIGCONT, sig4_handler) ; 
     int pidFile = open("/var/run/agent.pid", O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
     if (pidFile == -1) {
@@ -60,7 +75,8 @@ int main() {
 
 
     while (1) {
-        sleep(3600); 
+        if (notstop) {
+        sleep(3600); }
     }
 
     return 0;
