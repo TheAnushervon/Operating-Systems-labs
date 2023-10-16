@@ -106,9 +106,29 @@ void terminate(pid_t process) {
 void create_process(int new_process) {
 
     // TODO: stop the running process
-
+    if (running_process >= 0 && running_process < PS_MAX
+    && ps[running_process] > 0) {
+        if (kill(ps[running_process], SIGSTOP) == 0 ) { 
+            printf("Stopped process with PID%d (idx %d)\n",
+            ps[running_process], running_process) ; 
+        }
+    }
+   
     // TODO: fork a new process and add it to ps array
-
+    pid_t newpr = fork() ; 
+    if (newpr == 0 ) { 
+        char new_process_str[10] ; 
+        snprintf(new_process_str, sizeof(new_process_str), "%d", new_process); 
+        execlp("./worker", "./worker", new_process_str, 
+        (char *) NULL) ; 
+        perror("exec failed") ; 
+        exit(1) ; {
+            ps[new_process] = newpr ; 
+            printf("Created new process with PID %d (idx %d)\n", 
+            newpr, new_process); 
+            running_process = new_process ; 
+        }
+    }
     // TODO: Now the idx of the running process is new_process 
 
     // TODO: The scheduler process runs the program "./worker {new_process}" 
@@ -123,11 +143,15 @@ ProcessData find_next_process() {
 	int location = 0;
 
 	for(int i=0; i < data_size; i++) {
-
+        if (data[i].at <= total_time && data[i].bt >0){
+            if(data[i].at < data[location].at){
+                location = i ; 
+            }
+        }
         // TODO: find location of the next process to run from the {data} array
         // Considering the scheduling algorithm FCFS
-
 	}
+
 
 
 
@@ -139,6 +163,8 @@ ProcessData find_next_process() {
         
         // increment the time
         total_time++;
+       /// below for the Round Robing algorithm 
+       /// if(location < data_size - 1) { location++ ; }
         return find_next_process(); 
 	}
 
@@ -197,37 +223,71 @@ void schedule_handler(int signum) {
     1. If there is a worker process running, then decrement its remaining burst
     and print messages as follows:
     "Scheduler: Runtime: {total_time} seconds"
-    "Process {running_process} is running with {data[running_process].burst} seconds left"
-    
-    1.A. If the worker process finished its burst time, then the scheduler should terminate 
+    "Process {running_process} is running with {data[running_process].burst} seconds left"*/
+    if(running_process >= 0 && running_process < PS_MAX && ps[running_process] > 0){
+        data[running_process].burst-- ; 
+        printf("Scheduler: Runtime: %u seconds\n", total_time) ; 
+        printf("Process %d is running with %d seconds left\n", running_process, data[running_process].burst) ; 
+    }
+
+    /*1.A. If the worker process finished its burst time, then the scheduler should terminate 
     the running process and prints the message:
     "Scheduler: Terminating Process {running_process} (Remaining Time: {data[running_process].burst})"
     
     then the scheduler waits for its termination and there will be no running processes anymore.
-    Since the process is terminated, we can calculate its metrics {ct, tat, wt}
+    Since the process is terminated, we can calculate its metrics {ct, tat, wt}*/
     
+    if(data[running_process].burst == 0 ) { 
+        printf("Scheduler: Terminating Process %d (Remaining Time: 0)\n", running_process) ;
+        int status; 
+        waitpid(ps[running_process], &status, 0) ; 
+        // Calculating the metrics (ct,tat,wt) : 
+        data[running_process].ct = total_time ; 
+        data[running_process].tat = data[running_process].ct - data[running_process].at ; 
+        data[running_process].wt = data[running_process].tat - data[running_process].bt ; 
+    }
 
-    2. After that, we need to find the next process to run {next_process}. 
+    /*2. After that, we need to find the next process to run {next_process}. 
     
     // this call will check the bursts of all processes
-    check_burst();
+    check_burst();*/
 
-    3. If {next_process} is not running, then we need to check the current process
-    3.A. If the current process is running, then we should stop the current running process
+    ProcessData next_process = find_next_process() ; 
+
+    /*3. If {next_process} is not running, then we need to check the current process*/
+    if(running_process != next_process.idx){
+    /*3.A. If the current process is running, then we should stop the current running process
     and print the message:
-    "Scheduler: Stopping Process {running_process} (Remaining Time: {data[running_process].burst})"
+    "Scheduler: Stopping Process {running_process} (Remaining Time: {data[running_process].burst})"*/
+    if (running_process >= 0 && ps[running_process] > 0){
+        printf("Scheduler: Stopping Process %d (Remaining Time: %d)\n",running_process,
+        data[running_process].burst); 
+         suspend(ps[running_process]); 
+    }
+    /*3.B. set current process {next_process} as the running process.*/
 
-    3.B. set current process {next_process} as the running process.
+    running_process = next_process.idx ; 
 
-    3.C.1. then create a new process for {running_process} and print the message:
-    "Scheduler: Starting Process {running_process} (Remaining Time: {data[running_process].burst})"
-    Here we have the first response to the process {running_process} and we can calculate the metric {rt}
+    /*3.C.1. then create a new process for {running_process} and print the message:
+    "Scheduler: Starting Process {running_process} (Remaining Time: {data[running_process].burst})"*/
+    if(ps[running_process] == 0 ) {
+        create_process(running_process) ; 
+        printf("Scheduler: Starting Process %d (Remaining Time: %d)\n",
+        running_process, data[running_process].burst) ; 
+    }
+    else {
+
+    /*Here we have the first response to the process {running_process} and we can calculate the metric {rt}
 
     3.C.2. or resume the process {running_process} if it is stopped and print the message:
     "Scheduler: Resuming Process {running_process} (Remaining Time: {data[running_process].burst})"
     */
-
-}
+    printf("Scheduler: Resuming Process %d (Remaining Time: %d)\n", running_process, 
+    data[running_process].burst);
+    resume(ps[running_process]) ; 
+    }
+    check_burst() ; 
+}}
 
 
 int main(int argc, char *argv[]) {
