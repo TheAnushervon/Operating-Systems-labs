@@ -1,4 +1,4 @@
-#include <stdio.h>
+/*#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
@@ -92,4 +92,113 @@ int main(int argc, char *argv[]){
       next_n++;
     }
   
+}*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <time.h>
+#include <stdbool.h>
+#include <sys/types.h> 
+#define TRI_BASE 1000000
+
+// Define variables to track the process index and pid
+pid_t pid;
+int process_idx;
+
+// Define a variable to keep track of the number of triangular numbers found
+long tris;
+
+// Define a flag to indicate if the process is paused
+bool paused = false;
+
+// Function to check if a number is triangular
+bool is_triangular(long n) {
+    for (long i = 1; i <= n; i++) {
+        if (i * (i + 1) == 2 * n) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Signal handler function
+void signal_handler(int signum) {
+    // Print the process info and the number of triangular numbers found
+    printf("Process %d (PID=%d): count of triangulars found so far is %ld\n", process_idx, pid, tris);
+
+    switch (signum) {
+        case SIGTSTP:
+            // Handle pause signal
+            paused = true;
+            printf("Process %d: stopping...\n", process_idx);
+            break;
+        case SIGCONT:
+            // Handle resume signal
+            paused = false;
+            printf("Process %d: resuming...\n", process_idx);
+            break;
+        case SIGTERM:
+            // Handle terminate signal
+            printf("Process %d: terminating...\n", process_idx);
+            exit(EXIT_SUCCESS);
+            break;
+        default:
+            break;
+    }
+}
+
+// Generate a big number
+long big_n() {
+    time_t t;
+    long n = 0;
+    srand((unsigned) time(&t));
+    while (n < TRI_BASE) {
+        n += rand();
+    }
+    return n % TRI_BASE;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        printf("Usage: %s <process_idx>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    // Get the process index from the command line argument
+    process_idx = atoi(argv[1]);
+
+    // Get the process ID
+    pid = getpid();
+
+    // Register the signal handlers
+    signal(SIGTSTP, signal_handler);
+    signal(SIGCONT, signal_handler);
+    signal(SIGTERM, signal_handler);
+
+    // Initialize variables
+    long next_n = big_n() + 1;
+    printf("Process %d (PID=%d): has been started\n", process_idx, pid);
+    printf("Process %d (PID=%d): will find the next triangular number from [%ld, inf)\n", process_idx, pid, next_n);
+
+    // Initialize triangular count
+    tris = 0;
+
+    while (true) {
+        // Check if the process is not paused
+        if (!paused) {
+            // Check if the current number is triangular
+            if (is_triangular(next_n)) {
+                // Print the found triangular number and increase the count
+                printf("Process %d (PID=%d): I found this triangular number %ld\n", process_idx, pid, next_n);
+                tris++;
+            }
+            next_n++;
+        }
+
+        // Sleep for a while to avoid busy-waiting
+        usleep(100000); // Sleep for 100ms
+    }
+    return 0;
 }

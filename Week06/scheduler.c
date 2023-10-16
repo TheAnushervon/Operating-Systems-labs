@@ -119,7 +119,7 @@ void create_process(int new_process) {
     if (newpr == 0 ) { 
         char new_process_str[10] ; 
         snprintf(new_process_str, sizeof(new_process_str), "%d", new_process); 
-        execlp("./worker", "./worker", new_process_str, 
+        execlp("./worker", "worker", new_process_str, 
         (char *) NULL) ; 
         perror("exec failed") ; 
         exit(1) ; {
