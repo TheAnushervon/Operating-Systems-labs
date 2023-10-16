@@ -34,7 +34,13 @@ void read_file(FILE* file){
     file = fopen("data.txt", "r") ; 
     char buffer[1024] ; 
     fgets(buffer, sizeof(buffer), file) ; 
-    printf("")
+    int counter = 0 ; 
+    while(fgets(buffer, sizeof(buffer) , file)){ // fetching data from data.txt
+        sscanf(buffer, "%d %d %d", &data[counter].idx, 
+        &data[counter].at,&data[counter].bt) ; 
+        counter ++ ; 
+    }
+    memset(ps, 0, sizeof(ps)); // initializing to all zeroes 
     // TODO: extract the data of processes from the {file} 
     // and store them in the array {data}
     // initialize ps array to zeros (the process is terminated or not created yet)
@@ -45,18 +51,55 @@ void read_file(FILE* file){
 void resume(pid_t process) {
     // TODO: send signal SIGCONT to the worker process if it is not in one of the states
     // (1.not created yet or 2.terminated)
+
+    // Check if the process is not created yet (PID value is less than or equal to 0)
+    // or if the process is terminated (kill with signal 0 returns 0).
+    if (process <= 0 || kill(process, 0) == -1) {
+        // The process is not in one of the specified states, so send SIGCONT.
+        if (kill(process, SIGCONT) == 0) {
+            printf("Resumed process with PID: %d\n", process);
+        } else {
+            perror("Failed to resume process");
+        }
+    } else {
+        printf("Process with PID %d is not eligible for resume.\n", process);
+    }
+
 }
 
 // send signal SIGTSTP to the worker process
 void suspend(pid_t process) {
     // TODO: send signal SIGTSTP to the worker process if it is not in one of the states
     // (1.not created yet or 2.terminated)
+
+    if (process <= 0 || kill(process, 0) == -1) { 
+        if(kill(process, SIGTSTP) == 0 ) {
+             printf("Suspend process with PID: %d\n", process);
+        } else {
+            perror("Failed to suspend process");
+        }
+    } else {
+        printf("Process with PID %d is not eligible for suspend.\n", process);
+ 
+        }
 }
 
 // send signal SIGTERM to the worker process
 void terminate(pid_t process) {
     // TODO: send signal SIGTERM to the worker process if it is not in one of the states
     // (1.not created yet or 2.terminated)
+
+
+    if (process <= 0 || kill(process, 0) == -1) { 
+        if(kill(process, SIGTERM) == 0 ) {
+             printf("Terminated process with PID: %d\n", process);
+        } else {
+            perror("Failed to terminate process");
+        }
+    } else {
+        printf("Process with PID %d is not eligible for terminate.\n", process);
+ 
+        }
 }
 
 // create a process using fork

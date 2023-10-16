@@ -15,14 +15,14 @@ int main(){
     printf("\n%s\n", buffer) ; 
     fgets(buffer, sizeof(buffer), file) ; 
     printf("%s\n", buffer) ;
-   
+   struct example ex[3];
+   int counter = 0 ; 
     while (fgets(buffer, sizeof(buffer), file)) {
-        struct example ex;
+        
 
-        if (sscanf(buffer, "%d %d %d", &ex.idx, &ex.at, &ex.bt) != 3) {
-            printf("Error parsing the line: %s\n", buffer);
-            continue;
-        }
+       sscanf(buffer, "%d %d %d", &ex[counter].idx, &ex.at, &ex.bt) != 3) {
+         
+
 
         printf("%d %d %d\n", ex.idx, ex.at, ex.bt);
     }
