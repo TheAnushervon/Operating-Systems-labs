@@ -24,12 +24,8 @@ pid_t ps[PS_MAX];
 unsigned data_size;
 
 void read_file(FILE* file) {
-    if (file == NULL) {
-        perror("File is not found or cannot open it!");
-        exit(EXIT_FAILURE);
-    }
+    char line[100];  
 
-    char line[100]; 
     data_size = 0;
     char a[64];
     fgets(a, 64, file);
@@ -53,9 +49,6 @@ void read_file(FILE* file) {
     fclose(file); 
 }
 
-
-
-
 void suspend(pid_t process) {
     if (ps[process] > 0) {
         kill(ps[process], SIGTSTP);
@@ -67,6 +60,7 @@ void resume(pid_t process) {
         kill(ps[process], SIGCONT);
     }
 }
+
 void terminate(pid_t process) {
     if (ps[process] > 0) {
         kill(ps[process], SIGTERM);
@@ -76,18 +70,9 @@ void terminate(pid_t process) {
 }
 
 void create_process(int new_process) {
-    if (running_process != -1) {
-        suspend(running_process);
-        printf("Scheduler: Stopping Process %d (Remaining Time: %d)\n", running_process, data[running_process].burst);
-    }
-
     pid_t pid = fork();
 
-    if (pid == -1) {
-        perror("Fork error");
-        exit(EXIT_FAILURE);
-    }
-
+   
     if (pid == 0) {
         char process_arg[10];
         snprintf(process_arg, sizeof(process_arg), "%d", new_process);
@@ -102,27 +87,25 @@ void create_process(int new_process) {
     }
 }
 
-
-ProcessData find_next_process() {
+int find_next_process() {
     int location = -1;
-    int min_arrival_time = INT_MAX; 
-    
+    int min_burst_time = INT_MAX;
+
     for (int i = 0; i < data_size; i++) {
-        if (data[i].burst > 0) {
-            if (data[i].at < min_arrival_time) {
-                min_arrival_time = data[i].at;
+        if (data[i].burst > 0 && data[i].at <= total_time) {
+            if (data[i].burst < min_burst_time) {
+                min_burst_time = data[i].burst;
                 location = i;
             }
         }
     }
 
-    if (location == -1) {
-        
+    if ( location == -1 || data[location].at > total_time ) {
         total_time++;
         return find_next_process();
     }
-    
-    return data[location];
+
+    return location;
 }
 
 
@@ -159,44 +142,44 @@ void check_burst(){
     exit(EXIT_SUCCESS);
 }
 
+
 void schedule_handler(int signum) {
     total_time++;
-    
+
     if (running_process != -1) {
         data[running_process].burst--;
-        
+
         printf("Scheduler: Runtime: %u seconds\n", total_time);
         printf("Process %d is running with %d seconds left\n", running_process, data[running_process].burst);
-        
+
         if (data[running_process].burst == 0) {
             printf("Scheduler: Terminating Process %d (Remaining Time: 0)\n", running_process);
-            
             terminate(running_process);
-            data[running_process].ct = total_time + 1;
+            data[running_process].ct = total_time ;
             data[running_process].tat = data[running_process].ct - data[running_process].at;
             data[running_process].wt = data[running_process].tat - data[running_process].bt;
             running_process = -1;
         }
     }
-    
+     if(data[running_process].burst != 0){
+        return;
+     }
     check_burst();
-    
-    ProcessData next_process = find_next_process();
-    
+
+    int Nid = find_next_process();
+    ProcessData next_process = data[Nid];
+
     if (running_process != next_process.idx) {
         if (running_process != -1) {
             printf("Scheduler: Stopping Process %d (Remaining Time: %d)\n", running_process, data[running_process].burst);
-            suspend(ps[running_process]);
+            suspend(running_process);
         }
-        
+
         running_process = next_process.idx;
-        
         if (ps[running_process] == 0) {
             create_process(running_process);
-            printf("Scheduler: Starting Process %d (Remaining Time: %d)\n", running_process, data[running_process].burst);
-            data[running_process].rt = total_time - data[running_process].at + 1;
         } else {
-            resume(ps[running_process]);
+            resume(running_process);
             printf("Scheduler: Resuming Process %d (Remaining Time: %d)\n", running_process, data[running_process].burst);
         }
     }
@@ -219,5 +202,5 @@ int main(int argc, char *argv[]) {
     setitimer(ITIMER_REAL, &timer, NULL);
     signal(SIGALRM, schedule_handler);
     
-    while(1); 
+    while(1);
 }
