@@ -102,25 +102,26 @@ char line[100] ;
 int adrs, size ; 
 char d ; 
 clock_t startTime = clock() ; 
+int query = 0 ; 
 while(fgets(line, sizeof(line), file)){
-
+if (line[0] == 'e') {break;}
+query++ ; 
 if (line[0] == 'a') {
 sscanf(line, "%s %d %d", &d,  &adrs, &size) ; 
-//allocateFirstFit(adrs, size) ; 
+allocateFirstFit(adrs, size) ; 
 //allocateWorstFit(adrs, size) ; 
-allocateBestFit(adrs,size) ; 
+//allocateBestFit(adrs,size) ; 
 
 }
 else if (line [0] == 'c'){
     char * openParen = strchr(line, '(') ; 
     sscanf(openParen+1, "%d", &adrs) ; 
     clear(adrs) ; 
-
 }
-else if (line[0] == 'e') {break; }
 }
 clock_t endTime = clock() ; 
-double execut = (double)(endTime-startTime )/CLOCKS_PER_SEC; 
+fclose(file) ; 
+double execut = (endTime-startTime)/query ; 
 printf("%f", execut) ; 
 
 }
