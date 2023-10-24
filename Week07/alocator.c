@@ -105,23 +105,22 @@ clock_t startTime = clock() ;
 while(fgets(line, sizeof(line), file)){
 
 if (line[0] == 'a') {
-//printf("%s\n\n", line) ; 
 sscanf(line, "%s %d %d", &d,  &adrs, &size) ; 
 //allocateFirstFit(adrs, size) ; 
 //allocateWorstFit(adrs, size) ; 
 allocateBestFit(adrs,size) ; 
-//printf("%d\n%d\n\n", adrs, size) ; 
+
 }
 else if (line [0] == 'c'){
     char * openParen = strchr(line, '(') ; 
     sscanf(openParen+1, "%d", &adrs) ; 
     clear(adrs) ; 
-  //  printf("\n\n%d", adrs) ; 
+
 }
 else if (line[0] == 'e') {break; }
 }
 clock_t endTime = clock() ; 
 double execut = (double)(endTime-startTime )/CLOCKS_PER_SEC; 
 printf("%f", execut) ; 
-///check() ; 
+
 }
