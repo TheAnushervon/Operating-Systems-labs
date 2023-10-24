@@ -1,0 +1,4 @@
+allocate 10 30
+allocate 20 20
+clear(10)
+end
