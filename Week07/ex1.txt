@@ -1,0 +1,4 @@
+Algorithms      avg.exec.time       Throughput
+1) FirstFit     4.075135            13.251095
+2) WorstFit     1.252398            43.117284
+3) BestFit      1.261343            42.811511

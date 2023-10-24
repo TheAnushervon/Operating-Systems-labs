@@ -7,7 +7,7 @@
 unsigned int memory[MAX_SIZE] ; 
 
 
-void allocateFirstFit(int adrs, int size) {
+void allocate_FirstFit(int adrs, int size) {
     for (int i = 0; i < MAX_SIZE; i++) {
         if (memory[i] == 0) {
             int blockSize = 0;
@@ -17,16 +17,15 @@ void allocateFirstFit(int adrs, int size) {
                     for (int j = i; j < i + size; j++) {
                         memory[j] = adrs;
                     }
-                    //printf("Allocated %d units of memory for adrs %d\n", size, adrs);
                     return;
                 }
             }
         }
     }
-    ///printf("Failed to allocate %d units of memory for adrs %d\n", size, adrs);
+    printf("Failed to allocate %d units of memory for adrs %d\n", size, adrs);
 }
 
-void allocateWorstFit(unsigned int adrs, int size) {
+void allocate_WorstFit(unsigned int adrs, int size) {
     int largestBlockSize = 0;
     int largestBlockStart = -1;
 
@@ -51,7 +50,7 @@ void allocateWorstFit(unsigned int adrs, int size) {
     }
 }
 
-void allocateBestFit(unsigned int adrs, int size) {
+void allocate_BestFit(unsigned int adrs, int size) {
     int bestBlockSize = MAX_SIZE + 1;
     int bestBlockStart = -1;
 
@@ -108,20 +107,21 @@ if (line[0] == 'e') {break;}
 query++ ; 
 if (line[0] == 'a') {
 sscanf(line, "%s %d %d", &d,  &adrs, &size) ; 
-allocateFirstFit(adrs, size) ; 
-//allocateWorstFit(adrs, size) ; 
-//allocateBestFit(adrs,size) ; 
+//allocate_FirstFit(adrs, size) ; 
+//allocate_WorstFit(adrs, size) ; 
+allocate_BestFit(adrs,size) ; 
 
 }
 else if (line [0] == 'c'){
-    char * openParen = strchr(line, '(') ; 
-    sscanf(openParen+1, "%d", &adrs) ; 
+    sscanf(line, "%s %d",&d, &adrs) ; 
     clear(adrs) ; 
 }
 }
 clock_t endTime = clock() ; 
 fclose(file) ; 
-double execut = (endTime-startTime)/query ; 
-printf("%f", execut) ; 
+double time = (double) (endTime - startTime) / CLOCKS_PER_SEC ; 
+double execut = query/((double)(endTime-startTime)/CLOCKS_PER_SEC);  
+
+printf("Throughput: %f", execut) ; 
 
 }
