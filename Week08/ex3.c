@@ -4,16 +4,17 @@
 #include <unistd.h>
 #include <sys/resource.h>
 #include <sys/time.h>
-
+char *memory ; 
 void allocateAndFillMemory() {
 
-    char* memory = (char*)malloc(10 * 1024 * 1024);
+     memory = (char*)malloc(1000 * 1024 * 1024);
     if (memory == NULL) {
         perror("Memory allocation failed");
         exit(1);
     }
 
-    memset(memory, 0, 10 * 1024 * 1024);
+    memset(memory, 0, 1000 * 1024 * 1024);
+
 }
 
 void printMemoryUsage() {
@@ -30,6 +31,7 @@ int main() {
     for (i = 0; i < 10; i++) {
         allocateAndFillMemory();
         printMemoryUsage();
+        free (memory) ; 
         sleep(1);
     }
 
