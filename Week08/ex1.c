@@ -8,9 +8,11 @@
 
 
 const char* pass = "pass:";
-
+int size = 14 ; 
+int left = 5 ; 
+int right = 13 ; 
 char* generate_password() {
-    char* password = (char*)malloc(13 + 1);
+    char* password = (char*)malloc(size);
    
 
     const char arr[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
@@ -18,10 +20,10 @@ char* generate_password() {
 
     srand(time(NULL));
     strcpy(password, pass);
-    int ind; 
-    for (int i = 5; i < 13; i++) {
-        ind = rand()%num_characters;
-        password[i] = arr[ind];
+    int ind_let; 
+    for (int i = left; i < right; i++) {
+        ind_let = rand()%num_characters;
+        password[i] = arr[ind_let];
     }
     password[8] = '\0';
 
@@ -40,16 +42,16 @@ int main() {
 
     char* password = generate_password();
 
-    char* shared = (char*)mmap(NULL, 8 + 1, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    char* shared_memory = (char*)mmap(NULL, 9, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     
     
     
-    if (shared == MAP_FAILED) {
+    if (shared_memory == MAP_FAILED) {
         perror("mmap");
         exit(1);
     }
 
-    strcpy(shared, password);
+    strcpy(shared_memory, password);
 
     while (1) {
         
