@@ -1,14 +1,11 @@
 #!/bin/bash
 
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <ex1 PID>"
-    exit 1
-fi
+gcc ex1.c -o ex1 ; ./ex1 &
 
-ex1_pid="$1"
+PID=$(cat /tmp/ex1.pid)
+start=$(grep heap /proc/$PID/maps | awk -F " " '{print $1}' | awk -F "-" '{print $1}')
+end=$(grep heap /proc/$PID/maps | awk -F " " '{print $1}' | awk -F "-" '{print $2}')
 
-address=$(grep -o "pass:.*" /proc/$ex1_pid/maps | cut -f1 -d' ')
-
-sudo xxd -l 8 -p /proc/$ex1_pid/mem | xxd -r -p -s $address
-
-kill -SIGKILL $ex1_pid
+sudo xxd -s 0x$start -l $((0x$end - 0x$start )) /proc/$PID/mem | grep -E -o 'pass:.{0,8}' ; kill -SIGKILL $PID
+echo "start - $start; end - $end"
+$SHELL
