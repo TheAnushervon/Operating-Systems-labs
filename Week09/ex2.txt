@@ -1,0 +1,27 @@
+random:
+Hits: 96
+Misses: 904
+Hit Ratio: 9.60%
+
+Random replacement selects a page at random for eviction. 
+As seen from the results, it provides a moderate hit ratio of 9.60%. 
+This approach lacks any form of intelligent decision-making in choosing which page to 
+replace, resulting in a relatively balanced performance.
+
+nfu:
+Hits: 89
+Misses: 911
+Hit Ratio: 8.90%
+
+NFU selects the page that is least frequently used. Despite the intention to prioritize less 
+frequently used pages, it still results in a lower hit ratio of 8.90% in this specific workload.
+The performance may vary with different types of memory access patterns.
+
+aging:
+Hits: 103
+Misses: 897
+Hit Ratio: 10.30%
+
+Aging employs a more sophisticated approach by considering the aging of pages based on their 
+reference history. It has the highest hit ratio at 10.30%, indicating that it makes better 
+choices in retaining frequently accessed pages in memory.

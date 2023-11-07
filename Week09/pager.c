@@ -9,9 +9,8 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define PAGE_SIZE 8
+#define SIZE_PAGE 8
 
-// Define the structure for the page table entry
 struct PTE {
     bool valid;
     int frame;
@@ -107,7 +106,6 @@ int victim_page(){
 }
 
 void handle_signal(int signo) {
-    // Find a non-zero referenced page
     int page_to_load = -1;
     for (int i = 0; i < num_pages; i++) {
         if (page_table[i].referenced != 0) {
@@ -119,7 +117,6 @@ void handle_signal(int signo) {
     if (page_to_load != -1) {
         pid_t mmu_pid = page_table[page_to_load].referenced;
 
-        // Check if there are free frames
         printf("Page %d is referenced\n", page_to_load);
         int free_frame = -1;
         for (int i = 0; i < num_frames; i++) {
@@ -209,7 +206,7 @@ int main(int argc, char* argv[]) {
     printf("-------------------------\n");
     printf("Initialize RAM:\n");
     for(int i = 0; i < num_frames; i ++){
-        char* text = (char*)malloc(PAGE_SIZE * sizeof(char));
+        char* text = (char*)malloc(SIZE_PAGE * sizeof(char));
         text[0] = '\0';
         ram[i] = text;
     }
@@ -220,11 +217,11 @@ int main(int argc, char* argv[]) {
     printf("Initialize disk:\n");
     printf("Disk array:\n");
     for (int i = 0; i < num_pages; i++) {
-        char* random_string = (char*)malloc(PAGE_SIZE * sizeof(char));
-        for(int j = 0; j < PAGE_SIZE; j ++){
+        char* random_string = (char*)malloc(SIZE_PAGE * sizeof(char));
+        for(int j = 0; j < SIZE_PAGE; j ++){
             random_string[j] = (char)(rand() % 26 + 'a');
         }
-        random_string[PAGE_SIZE] = '\0';
+        random_string[SIZE_PAGE] = '\0';
         printf("Page %d ---> %s\n", i, random_string);
         
         disk[i] = random_string;
