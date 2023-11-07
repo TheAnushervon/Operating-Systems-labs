@@ -93,15 +93,15 @@ void handle_signal(int signo) {
                 table[old_page].dirty = false;
             }
             _frame[victim_frame] = 1;
-            access_cd++;
+        m                                                                                               
         }
         access_cd++;
         print_RAM();
 
-        printf("disk accesses is %d so far\n", access_cd);
+        printf("disk accesses is %d so far\n", access_cd);                                              
         printf("Resume MMU process\n");
-        printf("-------------------------\n");
-        kill(mmu_pid, SIGCONT);
+        printf("-------------------------\n");                                                                                                                                                                                                             
+        kill(mmu_pid, SIGCONT);              
     } else {
         printf("Pager is terminated. Disk accesses: %d\n", access_cd);
         close(ptable);
