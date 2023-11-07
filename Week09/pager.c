@@ -12,7 +12,7 @@
 #define PAGE_SIZE 8
 
 // Define the structure for the page table entry
-struct PTE {
+struct PageTableEntry {
     bool valid;
     int frame;
     bool dirty;
@@ -24,13 +24,13 @@ struct PTE {
 };
 
 int page_table_fd;
-struct PTE* page_table;
+struct PageTableEntry* page_table;
 char** ram;
 char** disk;
 int num_pages, num_frames;
 int disk_accesses = 0;
 int *used_frame;
-char* pr_algoritm;
+char* pr_algorithm;
 
 void print_page_table() {
     printf("-------------------------\n");
@@ -51,7 +51,7 @@ void print_ram_array(){
 }
 
 // choose random page to replace
-int random_page(struct PTE* page_table){
+int random_page(struct PageTableEntry* page_table){
     int rand_index = rand() % num_frames;
     for(int i = 0; i < num_pages; i ++){
         if(page_table[i].valid && page_table[i].frame == rand_index){
@@ -62,7 +62,7 @@ int random_page(struct PTE* page_table){
 }
 
 // choose page to replace by Not frequently used algorithm
-int nfu(struct PTE* page_table){
+int nfu(struct PageTableEntry* page_table){
     int min_index = -1;
     for(int i = 0; i < num_pages; i ++){
         if(!page_table[i].valid) continue;
@@ -74,7 +74,7 @@ int nfu(struct PTE* page_table){
 }
 
 // choose page to replace by Aging algorithm
-int aging(struct PTE* page_table){
+int aging(struct PageTableEntry* page_table){
     for(int i = 0; i < num_pages; i ++){
         if (page_table[i].valid == 1){
             page_table[i].age = page_table[i].age >> 1;
@@ -83,7 +83,6 @@ int aging(struct PTE* page_table){
                 page_table[i].referenced = 0;
             }
         }
-    }
 
     int min_index = -1;
     for(int i = 0; i < num_pages; i ++){
@@ -96,11 +95,11 @@ int aging(struct PTE* page_table){
 }
 
 int victim_page(){
-    if(strcmp(pr_algoritm, "random") == 0){
+    if(strcmp(pr_algorithm, "random") == 0){
         return random_page(page_table);
-    }else if(strcmp(pr_algoritm, "nfu") == 0){
+    }else if(strcmp(pr_algorithm, "nfu") == 0){
         return nfu(page_table);
-    }else if(strcmp(pr_algoritm, "aging") == 0){
+    }else if(strcmp(pr_algorithm, "aging") == 0){
         return aging(page_table);
     }
     return -1;
@@ -147,7 +146,7 @@ void handle_signal(int signo) {
                 exit(1);
             }
             used_frame[victim_frame] = 0;
-            
+
             printf("Copy data from the disk (page=%d) to RAM (frame=%d)\n", page_to_load, victim_frame);
             int old_page = -1;
             for(int i = 0; i < num_pages; i ++){
@@ -183,7 +182,7 @@ void handle_signal(int signo) {
         // If no non-zero referenced page is found, terminate the pager
         printf("Pager is terminated. Disk accesses: %d\n", disk_accesses);
         close(page_table_fd);
-        munmap(page_table, num_pages * sizeof(struct PTE));
+        munmap(page_table, num_pages * sizeof(struct PageTableEntry));
         exit(0);
     }
 }
@@ -195,12 +194,12 @@ int main(int argc, char* argv[]) {
     }
 
     num_pages = atoi(argv[1]);
-    num_frames = atoi(argv[2]);
+    num_frames = atoi(argv[2);
     used_frame = (int*)malloc(num_frames * sizeof(int));
-    pr_algoritm = (char*)malloc(10 * sizeof(char));
-    pr_algoritm = argv[3];
+    pr_algorithm = (char*)malloc(10 * sizeof(char));
+    pr_algorithm = argv[3];
     printf("pager pid is %d\n", getpid());
-    printf("Page Replacement Algorithm: %s\n", pr_algoritm);
+    printf("Page Replacement Algorithm: %s\n", pr_algorithm);
     for(int i = 0; i < num_frames; i ++){
         used_frame[i] = 0;
     }
@@ -215,7 +214,7 @@ int main(int argc, char* argv[]) {
     }
     print_ram_array();
     printf("-------------------------\n");
-    
+
     disk = (char**)malloc(num_pages * sizeof(char*));
     printf("Initialize disk:\n");
     printf("Disk array:\n");
@@ -226,10 +225,10 @@ int main(int argc, char* argv[]) {
         }
         random_string[PAGE_SIZE] = '\0';
         printf("Page %d ---> %s\n", i, random_string);
-        
+
         disk[i] = random_string;
     }
-    
+
     // Initialize the page table
     // Open the mapped file /tmp/ex2/pagetable
     int fd = open("/tmp/ex2/pagetable", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
@@ -238,7 +237,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    size_t page_table_size = num_pages * sizeof(struct PTE);
+    size_t page_table_size = num_pages * sizeof(struct PageTableEntry);
 
     // Truncate the file to the size of the page table
     if (ftruncate(fd, page_table_size) < 0) {
@@ -247,7 +246,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Map the page table file
-    page_table = (struct PTE*)mmap(NULL, page_table_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    page_table = (struct PageTableEntry*)mmap(NULL, page_table_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (page_table == MAP_FAILED) {
         perror("Failed to mmap the page table");
         return 1;
@@ -271,7 +270,6 @@ int main(int argc, char* argv[]) {
                page_table[i].referenced);
     }
     printf("-------------------------\n");
-    
 
     // Set up the signal handler for SIGUSR1
     signal(SIGUSR1, handle_signal);
