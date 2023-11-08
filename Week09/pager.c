@@ -158,6 +158,8 @@ void handle_signal(int signo) {
             page_table[page_to_load].valid = true;
             page_table[page_to_load].dirty = false;
             page_table[page_to_load].referenced = 0;
+            page_table[page_to_load].age = 0;
+            page_table[page_to_load].count = 0;
 
             if(old_page != -1){
                 printf("Old Page %d is referenced\n", old_page);
