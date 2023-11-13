@@ -67,13 +67,15 @@ void unlink_all(const char *source) {
             if (S_ISREG(file_stat.st_mode)) {
                 if (file_stat.st_ino != last_link_inode) {
                     free(last_link_path);
-                    last_link_path = malloc(PATH_MAX);
+                  //  last_link_path = malloc(PATH_MAX + 1000);
+                    last_link_path = calloc(PATH_MAX , sizeof(char));
+
                     if (last_link_path == NULL) {
                         perror("Error allocating memory");
                         break;
                     }
 
-                    snprintf(last_link_path, PATH_MAX, "%s_lastlink", file_path);
+                    snprintf(last_link_path, PATH_MAX, "%s", file_path);
 
                     if (link(file_path, last_link_path) == -1) {
                         perror("Error creating hard link");
@@ -144,11 +146,12 @@ void find_all_hlinks(const char *path) {
     closedir(dir);
 }
 void create_sym_link(const char *source, const char *link){
-    if (symlink(source, link) == -1){
-        perror("Error creating symbolic link") ; 
-    }else {
+    //if (symlink(source, link) == -1){
+      //  perror("Error creating symbolic link") ; 
+    //}else {
+      symlink(source, link) ; 
         printf("Created symbolic link : %s -> %s\n", link, source); 
-    }
+    //}
 }
 
 char *path ; 
