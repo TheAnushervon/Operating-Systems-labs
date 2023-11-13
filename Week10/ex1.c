@@ -8,96 +8,62 @@
 #include <limits.h>
 #include <sys/inotify.h>
 #include <fcntl.h>
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
+
+char* pathname;
+
+ino_t get_inode(const char *fn)
+{
+    DIR *dir;
+    struct dirent *entry;
+    char path[FILENAME_MAX];
+    struct stat info;
+    if ((dir = opendir(pathname)) == NULL)
+        perror("opendir error");
+    else
+    {
+        while ((entry = readdir(dir)) != NULL)
+        {
+            if (entry->d_name[0] != '.')
+            {
+                strcpy(path, pathname);
+                strcat(path, "/");
+                strcat(path, entry->d_name);
+                // printf("%s\n", path);
+                if (stat(path, &info) != -1 && strcmp(entry->d_name, fn) == 0)
+                    return info.st_ino;
+            }
+        }
+        closedir(dir);
+    }
+    return 0;
+}
 
 
 void unlink_all(const char *source) {
-    int inotify_fd = inotify_init();
-    if (inotify_fd == -1) {
-        perror("Error initializing inotify");
-        return;
-    }
-
-    int watch_descriptor = inotify_add_watch(inotify_fd, source, IN_CREATE | IN_DELETE);
-    if (watch_descriptor == -1) {
-        perror("Error adding watch to inotify");
-        close(inotify_fd);
-        return;
-    }
-
-    int source_fd = open(source, O_RDONLY);
-    if (source_fd == -1) {
-        perror("Error opening source directory");
-        close(inotify_fd);
-        return;
-    }
-
-    DIR *dir = fdopendir(source_fd);
-    if (dir == NULL) {
-        perror("Error opening source directory");
-        close(inotify_fd);
-        return;
-    }
-
-    int last_link_inode = -1;
-    char *last_link_path = NULL;
-
-    while (1) {
-        struct inotify_event event;
-        ssize_t len = read(inotify_fd, &event, sizeof(event));
-        if (len == -1) {
-            perror("Error reading inotify event");
-            break;
-        }
-
-        if (event.mask & IN_CREATE) {
-            printf("File %s created\n", event.name);
-
-            char file_path[PATH_MAX];
-            snprintf(file_path, PATH_MAX, "%s/%s", source, event.name);
-
-            struct stat file_stat;
-            if (lstat(file_path, &file_stat) == -1) {
-                perror("Error getting information about the file");
-                continue;
+    ino_t source_inode = get_inode(source);
+    // printf("%lu\n", source_inode);
+    DIR *dir;
+    struct dirent *entry;
+    char path[FILENAME_MAX];
+    struct stat info;
+    if ((dir = opendir(pathname)) == NULL)
+        perror("opendir error");
+    else
+    {
+        while ((entry = readdir(dir)) != NULL)
+        {
+            if (entry->d_name[0] != '.')
+            {
+                strcpy(path, pathname);
+                strcat(path, "/");
+                strcat(path, entry->d_name);
+                // printf("%s\n", path);
+                if (stat(path, &info) != -1 && source_inode == info.st_ino && strcmp(entry->d_name, source) != 0)
+                    unlink(entry->d_name);
             }
-
-            if (S_ISREG(file_stat.st_mode)) {
-                if (file_stat.st_ino != last_link_inode) {
-                    free(last_link_path);
-                  //  last_link_path = malloc(PATH_MAX + 1000);
-                    last_link_path = calloc(PATH_MAX , sizeof(char));
-
-                    if (last_link_path == NULL) {
-                        perror("Error allocating memory");
-                        break;
-                    }
-
-                    snprintf(last_link_path, PATH_MAX, "%s", file_path);
-
-                    if (link(file_path, last_link_path) == -1) {
-                        perror("Error creating hard link");
-                        continue;
-                    }
-
-                    if (last_link_inode != -1) {
-                        unlink(last_link_path);
-                    }
-
-                    last_link_inode = file_stat.st_ino;
-                    printf("Created hard link: %s\n", last_link_path);
-                }
-            }
-        } else if (event.mask & IN_DELETE) {
-            printf("File %s deleted\n", event.name);
         }
+        closedir(dir);
     }
-
-    free(last_link_path);
-    closedir(dir);
-    close(inotify_fd);
 }
 
 void find_all_hlinks(const char *path) {
@@ -109,7 +75,7 @@ void find_all_hlinks(const char *path) {
 
     printf("Hard links for %s (inode %lu): \n", path, (unsigned long)source_stat.st_ino);
 
-    DIR *dir = opendir(path);
+    DIR *dir = opendir(pathname);
     if (dir == NULL) {
         perror("Error opening directory");
         return;
@@ -122,18 +88,18 @@ void find_all_hlinks(const char *path) {
             continue;
         }
 
-        char entry_path[PATH_MAX];
-        snprintf(entry_path, PATH_MAX, "%s/%s", path, entry->d_name);
-
+        char entry_path[FILENAME_MAX];
+        snprintf(entry_path, FILENAME_MAX, "%s/%s", pathname, entry->d_name);
+        // printf("%s\n", entry_path);
         struct stat entry_stat;
-        if (lstat(entry_path, &entry_stat) == -1) {
+        if (stat(entry_path, &entry_stat) == -1) {
             perror("Error getting information about the entry");
             continue;
         }
 
         // Check if the entry is a hard link to the same inode
         if (entry_stat.st_ino == source_stat.st_ino) {
-            char absolute_path[PATH_MAX];
+            char absolute_path[FILENAME_MAX];
             if (realpath(entry_path, absolute_path) == NULL) {
                 perror("Error getting absolute path");
                 continue;
@@ -149,16 +115,16 @@ void create_sym_link(const char *source, const char *link){
     //if (symlink(source, link) == -1){
       //  perror("Error creating symbolic link") ; 
     //}else {
-      symlink(source, link) ; 
+        symlink(source, link) ; 
         printf("Created symbolic link : %s -> %s\n", link, source); 
     //}
 }
 
-char *path ; 
-int main(int argc , char*argv[]) {
-path = malloc (strlen(argv[1])+1) ;
-path = strcpy(path, argv[1]) ; 
-create_sym_link(path, "mylink") ; 
-find_all_hlinks(argv[1]) ; 
 
+int main(int argc , char*argv[]) {
+    pathname = argv[1]; 
+    FILE* f = fopen("myfile.txt", "w");
+    fprintf(f, "Hello world");
+    fclose(f);
+    getchar();
 }

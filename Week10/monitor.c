@@ -1,16 +1,16 @@
-#include <stdio.h> 
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h> 
-#include <signal.h> 
+#include <string.h>
+#include <signal.h>
 #include <unistd.h>
-#include <dirent.h> 
+#include <dirent.h>
 #include <sys/stat.h>
 #include <sys/inotify.h>
 #include <errno.h>
-#include<sys/types.h>
-char *path ; 
-volatile int shouldex = 1 ; 
-DIR *directory; 
+#include <sys/types.h>
+char *path;
+volatile int shouldex = 1;
+DIR *directory;
 #define EVENT_SIZE (sizeof(struct inotify_event))
 #define EVENT_BUF_LEN (1024 * (EVENT_SIZE + 16))
 
@@ -37,8 +37,8 @@ void traverse(const char *fn)
 
                 if (stat(path, &info) != 0)
                     fprintf(stderr, "stat() error on %s\n", path);
-
-                printf("I-node number: %lu\n", info.st_ino);
+                printf("%s ", path);
+                printf("I-node number: %lu ", info.st_ino);
                 printf("Hard links: %lu\n", info.st_nlink);
             }
         }
@@ -46,38 +46,38 @@ void traverse(const char *fn)
     }
 }
 
-void signalHandler(int signum){
-    printf("Recieved SIGNINT signal.\n") ; 
-   shouldex = 0 ; 
-   traverse(path) ; 
-  // statinfo_output() ; // function for output all 
-   // stats of folder 
-    exit (EXIT_SUCCESS) ;
-    
+void signalHandler(int signum)
+{
+    printf("Recieved SIGNINT signal.\n");
+    shouldex = 0;
+    traverse(path);
+    // statinfo_output() ; // function for output all
+    // stats of folder
+    exit(EXIT_SUCCESS);
 }
-int main(int argc, char* argv[]){
-   
-    path = malloc(strlen(argv[1])+1) ; 
-    path = strcpy(path, argv[1]) ; 
-    directory = opendir(path) ; 
-    printf("%s", path) ; 
-    signal(SIGINT,signalHandler) ; 
+int main(int argc, char *argv[])
+{
+
+    path = malloc(strlen(argv[1]) + 1);
+    path = strcpy(path, argv[1]);
+    directory = opendir(path);
+    printf("%s", path);
+    signal(SIGINT, signalHandler);
     /*while(shouldex){printf("d");
-    fflush(stdout) ; 
+    fflush(stdout) ;
     sleep(1);}*/
 
     /*
-    1) Output stat info of all files 
+    1) Output stat info of all files
     and folders in start
-    and end 
-    2) Some modification should be 
+    and end
+    2) Some modification should be
     printed out
-    */int length, i = 0;
+    */
+    int length; 
     int fd;
     int wd;
     char buffer[EVENT_BUF_LEN];
-
-  
 
     /* Print the stat info of all files and folders in the path on startup */
     traverse(path);
@@ -93,41 +93,45 @@ int main(int argc, char* argv[]){
     }
 
     /* Adding the specified directory into the watch list. */
-    wd = inotify_add_watch(fd, path, IN_CREATE | IN_DELETE);
+    wd = inotify_add_watch(fd, path, IN_CREATE | IN_DELETE | IN_MODIFY | IN_ATTRIB | IN_OPEN | IN_ACCESS);
 
     /* Read to determine the event change happens on the specified directory. */
-    length = read(fd, buffer, EVENT_BUF_LEN);
-
-    /* Checking for error */
-    if (length < 0)
+    while (1)
     {
-        perror("read");
-        close(fd);
-        return EXIT_FAILURE;
-    }
+        int i = 0;
+        length = read(fd, buffer, EVENT_BUF_LEN);
 
-    /* Actually read returns the list of change events happens. */
-    while (i < length)
-    {
-        struct inotify_event *event = (struct inotify_event *)&buffer[i];
-        if (event->len)
+        /* Checking for error */
+        if (length < 0)
         {
-            printf("File or directory %s ", event->name);
-
-            if (event->mask & IN_ACCESS)
-                printf("was accessed.\n");
-            if (event->mask & IN_CREATE)
-                printf("was created.\n");
-            if (event->mask & IN_DELETE)
-                printf("was deleted.\n");
-            if (event->mask & IN_MODIFY)
-                printf("was modified.\n");
-            if (event->mask & IN_OPEN)
-                printf("was opened.\n");
-            if (event->mask & IN_ATTRIB)
-                printf("metadata changed.\n");
+            perror("read");
+            close(fd);
+            return EXIT_FAILURE;
         }
-        i += EVENT_SIZE + event->len;
+
+        /* Actually read returns the list of change events happens. */
+        while (i < length)
+        {
+            struct inotify_event *event = (struct inotify_event *)&buffer[i];
+            if (event->len)
+            {
+                printf("File or directory %s ", event->name);
+
+                if (event->mask & IN_ACCESS)
+                    printf("was accessed.\n");
+                if (event->mask & IN_CREATE)
+                    printf("was created.\n");
+                if (event->mask & IN_DELETE)
+                    printf("was deleted.\n");
+                if (event->mask & IN_MODIFY)
+                    printf("was modified.\n");
+                if (event->mask & IN_OPEN)
+                    printf("was opened.\n");
+                if (event->mask & IN_ATTRIB)
+                    printf("metadata changed.\n");
+            }
+            i += EVENT_SIZE + event->len;
+        }
     }
 
     /* Print the stat info of all files and folders in the path before termination */
@@ -141,6 +145,6 @@ int main(int argc, char* argv[]){
 
     return EXIT_SUCCESS;
 
-   printf("Here"); 
-   traverse(path) ; 
+    printf("Here");
+    traverse(path);
 }
