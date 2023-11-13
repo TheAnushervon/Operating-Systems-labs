@@ -112,28 +112,20 @@ int main(int argc, char* argv[]){
         struct inotify_event *event = (struct inotify_event *)&buffer[i];
         if (event->len)
         {
+            printf("File or directory %s ", event->name);
+
+            if (event->mask & IN_ACCESS)
+                printf("was accessed.\n");
             if (event->mask & IN_CREATE)
-            {
-                if (event->mask & IN_ISDIR)
-                {
-                    printf("New directory %s created.\n", event->name);
-                }
-                else
-                {
-                    printf("New file %s created.\n", event->name);
-                }
-            }
-            else if (event->mask & IN_DELETE)
-            {
-                if (event->mask & IN_ISDIR)
-                {
-                    printf("Directory %s deleted.\n", event->name);
-                }
-                else
-                {
-                    printf("File %s deleted.\n", event->name);
-                }
-            }
+                printf("was created.\n");
+            if (event->mask & IN_DELETE)
+                printf("was deleted.\n");
+            if (event->mask & IN_MODIFY)
+                printf("was modified.\n");
+            if (event->mask & IN_OPEN)
+                printf("was opened.\n");
+            if (event->mask & IN_ATTRIB)
+                printf("metadata changed.\n");
         }
         i += EVENT_SIZE + event->len;
     }
