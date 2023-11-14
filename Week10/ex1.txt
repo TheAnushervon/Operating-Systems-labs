@@ -1,0 +1,11 @@
+1) Did the monitor.c program reported an event for myfile11.txt?
+
+Certainly, as myfile11 and myfile1 are hard links. Hard links share the same inode, 
+resulting in modifications to one file affecting all the hard links. When we relocate myfile1.txt 
+to /tmp/myfile1.txt, the inode remains unchanged.
+
+2) Did the monitor.c program reported an event for myfile11.txt?
+
+No, because myfile1 and myfile13 are symbolic links. Symbolic links, in contrast, 
+are distinct entities. Modifying the target file of a symbolic link does not trigger 
+events for the symbolic link itself.
