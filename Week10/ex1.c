@@ -120,74 +120,35 @@ void create_sym_link(const char *source, const char *link){
     //}
 }
 
-
-/*void ex1_main() {
-    // Task 1: Create myfile1.txt, myfile11.txt, and myfile12.txt
-    FILE *file1 = fopen("myfile1.txt", "w");
-    if (file1 != NULL) {
-        fprintf(file1, "%s", "Hello world1");
-        fclose(file1);
-
-        link("myfile1.txt", "myfile11.txt");
-        link("myfile1.txt", "myfile12.txt");
-        link("myfile1.txt", "watched_directory/myfile11.txt");
-        link("myfile1.txt", "watched_directory/myfile12.txt");
-
-        printf("Task 1: Files created and linked successfully.\n");
-
-        // Task 2: Find all hard links to myfile1.txt
-        printf("\nTask 2: Hard links to myfile1.txt:\n");
-        find_all_hlinks("myfile1.txt");
-
-        // Task 3: Move myfile1.txt to /tmp/myfile1.txt
-        if (rename("myfile1.txt", "/tmp/myfile1.txt") == 0) {
-            printf("\nTask 3: myfile1.txt moved to /tmp/myfile1.txt successfully.\n");
-
-            // Task 4: Modify the content of myfile11.txt
-            modify_file_content("myfile11.txt", "Modified content for myfile11.txt");
-            printf("\nTask 4: Content of myfile11.txt modified.\n");
-
-            // Task 5: Create symbolic link myfile13.txt
-            create_sym_link("/tmp/myfile1.txt", "myfile13.txt");
-            printf("\nTask 5: Symbolic link myfile13.txt created.\n");
-
-            // Task 6: Modify the content of /tmp/myfile1.txt
-            modify_file_content("/tmp/myfile1.txt", "Modified content for /tmp/myfile1.txt");
-            printf("\nTask 6: Content of /tmp/myfile1.txt modified.\n");
-
-            // Task 7: Remove duplicates of hard links to myfile11.txt
-            unlink_all("myfile11.txt");
-
-            // Task 8: Print stat info of the kept hard link
-            printf("\nTask 8: Stat info of the kept hard link:\n");
-            find_all_hlinks("myfile11.txt");
-        } else {
-            perror("Error moving myfile1.txt to /tmp/myfile1.txt");
-        }
-    } else {
-        perror("Error creating myfile1.txt");
-    }
-}*/
 int main(int argc , char*argv[]) {
     pathname = argv[1]; 
-    /*
-    FILE* main_one = fopen("myfile.txt", "w");
-    fprintf(main_one, "Hello world");
-    fclose(main_one);
-    FILE* second_one = fopen("myfile1.txt", "r") ; 
-    fclose(second_one) ; */
-    /*
     
-    */
    FILE* file1 = fopen("myfile1.txt", "w"); 
-   //FILE* file2 = fopen("myfile2.txt", "w");
-   link("myfile1.txt","myfile11.txt" ); 
-   link("myfile1.txt", "myfile12.txt"); 
+   int d = link("myfile1.txt","myfile11.txt" ); 
+   if (d == 0 ){printf("1st ok") ; }
+   int h = link("myfile1.txt", "myfile12.txt");
+   if (h == 0 ) {printf("\n2nd ok\n");} 
+
    find_all_hlinks("myfile1.txt"); 
+   printf ("\n\n\n"); 
+
    if((rename("myfile1.txt", "/tmp/myfile1.txt")==0)){
-    printf("moved myfile1.txt successfully."); 
+    printf("moved myfile1.txt successfully.\n"); 
    }
+
    create_sym_link("myfile13.txt", "/tmp/myfile1.txt"); 
+
+   unlink_all("myfile11.txt"); 
+   struct stat fileStat ; 
+   if (stat("myfile11.txt", &fileStat) == 0){
+    printf("File: myfile11.txt\n"); 
+    printf("Size: %ld bytes\n", fileStat.st_size); 
+    printf("I-node number: %lu\n", fileStat.st_ino); 
+    printf("Hard links: %lu\n", fileStat.st_nlink); 
+   }
+    
+   // path 
+   // inode 
    // ex1_main() ; 
     //getchar();
 }
