@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     2) Some modification should be
     printed out
     */
-    int length; 
+    int length;
     int fd;
     int wd;
     char buffer[EVENT_BUF_LEN];
@@ -115,20 +115,72 @@ int main(int argc, char *argv[])
             struct inotify_event *event = (struct inotify_event *)&buffer[i];
             if (event->len)
             {
-                printf("File or directory %s ", event->name);
-
+                /// printf("File or directory %s ", event->name);
+                // IN_ISDIR
                 if (event->mask & IN_ACCESS)
-                    printf("was accessed.\n");
+                {
+                    if (event->mask & IN_ISDIR)
+                    {
+                        printf("Directory %s was accessed.\n", event->name);
+                    }
+                    else
+                    {
+                        printf("File %s was accessed.\n", event->name);
+                    }
+                }
                 if (event->mask & IN_CREATE)
-                    printf("was created.\n");
+                {
+                    if (event->mask & IN_ISDIR)
+                    {
+                        printf("New directory %s was created.\n", event->name);
+                    }
+                    else
+                    {
+                        printf("New file %s was created.\n", event->name);
+                    }
+                }
                 if (event->mask & IN_DELETE)
-                    printf("was deleted.\n");
+                {
+                    if (event->mask & IN_ISDIR)
+                    {
+                        printf("Directory %s was deleted.\n", event->name);
+                    }
+                    else
+                    {
+                        printf("File %s was deleted.\n", event->name);
+                    }
+                }
                 if (event->mask & IN_MODIFY)
-                    printf("was modified.\n");
+                    if (event->mask & IN_ISDIR)
+                    {
+                        printf("Directory %s was modified.\n", event->name);
+                    }
+                    else
+                    {
+                        printf("File %s was modified.\n", event->name);
+                    }
                 if (event->mask & IN_OPEN)
-                    printf("was opened.\n");
+                {
+                    if (event->mask & IN_ISDIR)
+                    {
+                        printf("Directory %s was opened.\n", event->name);
+                    }
+                    else
+                    {
+                        printf("File %s was opened.\n", event->name);
+                    }
+                }
                 if (event->mask & IN_ATTRIB)
-                    printf("metadata changed.\n");
+                {
+                    if (event->mask & IN_ISDIR)
+                    {
+                        printf("Directory %s metadata changed.\n", event->name);
+                    }
+                    else
+                    {
+                        printf("File %s metadata changed.\n", event->name);
+                    }
+                }
             }
             i += EVENT_SIZE + event->len;
         }
