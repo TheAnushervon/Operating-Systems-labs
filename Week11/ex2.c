@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
             fscanf(inputFile, " %s %d", name, &blockNum);
             for (int i = 0; i < 1024; i++)
             {
-                buf[i] = 'xxx'; 
+                buf[i] = 'x'; 
             }
             write_block(name, blockNum, buf, diskFile);
             break;
