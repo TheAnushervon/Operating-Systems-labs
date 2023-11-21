@@ -221,9 +221,17 @@ int main(int argc, char *argv[])
         printf("Usage: %s <input_file>\n", argv[0]);
         exit(1);
     }
-
+    FILE *inputFile = fopen("input.txt", "r");
+    if (inputFile == NULL)
+    {
+        printf("Error: Could not open the input file.\n");
+        exit(1);
+    }
     char *inputFileName = argv[1];
-    int diskFile = open("disk0", O_RDWR);
+    char disk[20] ; 
+    //getline(inputFile, disk) ; 
+    fscanf(inputFile, "%19s", disk); 
+    int diskFile = open(disk, O_RDWR);
 
     if (diskFile == -1)
     {
@@ -231,12 +239,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    FILE *inputFile = fopen(inputFileName, "r");
-    if (inputFile == NULL)
-    {
-        printf("Error: Could not open the input file.\n");
-        exit(1);
-    }
+    
 
     char operation;
     char name[16];
