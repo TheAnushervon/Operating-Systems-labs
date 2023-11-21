@@ -19,7 +19,7 @@ char freeBlockList[128];
 
 void readFreeBlockList(int fd) {
     lseek(fd, 0, SEEK_SET);
-    read(fd, freeBlockList, 128);
+    read(fd, freeBlockList, sizeof(freeBlockList));
 }
 
 void writeFreeBlockList(int fd) {
@@ -191,7 +191,8 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    FILE *inputFile = fopen(inputFileName, "r");
+    FILE *inputFile = fopen("input.txt", "r");
+    getline(inputFile); 
     if (inputFile == NULL) {
         printf("Error: Could not open the input file.\n");
         exit(1);
