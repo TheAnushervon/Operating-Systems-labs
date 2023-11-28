@@ -87,7 +87,7 @@ int main() {
                 if (history.events[0].code == KEY_P && history.events[1].code == KEY_E &&
                     history.events[0].value == 1 && history.events[1].value == 1) {
                     printf("Shortcut: P+E  \"I passed the Exam!\"\n");
-                    history.events 
+                    
                 }
 
                 if (history.events[0].code == KEY_C && history.events[1].code == KEY_A &&
